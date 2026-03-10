@@ -2,30 +2,31 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <link rel="stylesheet" href="{% static 'perfiles.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="{% static 'perfil_nuevo.css' %}">
-    <title>Inzur - Gestión de Usuarios</title>
+    <title>InzurAI+ · Seguros en Movimiento</title>
 </head>
 <body>
     <div class="container-fluid p-0 d-flex">
-        
+        <!-- SIDEBAR -->
         <aside class="sidebar" id="sidebar">
-            <div class="logo-section">
-    <div class="logo-bg-box">
-        <img src="{% static 'imagenes/inzur.svg' %}" alt="Zynapxe" class="logo-img">
-    </div>
-</div>
+            <div class="logo-section" onclick="cambiarSeccion('dashboard')" style="cursor: pointer;" title="Ir al Dashboard principal">
+                <img src="{% static 'imagenes/inzur.svg' %}" alt="Zynapxe" class="logo-img">
+            </div>
             <div class="sidebar-red-line"></div>
 
+            <!-- Accordion menus -->
             <div class="accordion">
                 <div class="acc-item">
                     <button class="acc-header">Administración</button>
                     <div class="acc-body">
                         <ul class="acc-list">
-                            <li><a href="{% url 'perfiles' %}" class="acc-link">Perfiles</a><i class="bi bi-people-fill"></i></li>
-                            <li><a href="{% url 'crear_perfiles' %}" class="acc-link">Usuarios</a><i class="bi bi-people-fill"></i></li>
+                            <li><a href="#" class="acc-link" onclick="cambiarSeccion('perfiles')">Perfiles</a><i class="bi bi-person-vcard-fill"></i></li>
+                            <li><a href="#" class="acc-link" onclick="cambiarSeccion('usuarios')">Usuarios</a><i class="bi bi-people-fill"></i></li>
                             <li><a href="#" class="acc-link">Accesos</a><i class="bi bi-shield-lock-fill"></i></li>
                             <li><a href="#" class="acc-link">Auditoria</a><i class="bi bi-journal-text"></i></li>
                         </ul>
@@ -132,109 +133,343 @@
             </div>
         </aside>
 
-        <main class="content">
-            <div class="container">
-                <div class="top-bar-content">
-                    <h1 class="main-title">Crear Perfil de Usuario</h1>
+        <!-- MAIN CONTENT - DASHBOARD -->
+        <main class="main-content-wrapper">
+            <!-- DASHBOARD -->
+            <div class="main-dashboard" id="dashboardMain">
+                <div class="top-navbar">
+                    <div class="action-buttons">
+                        <div class="btn-action back" onclick="window.history.back()" title="Volver atrás">
+        <i class="bi bi-arrow-left"></i>
+    </div>
+                        <div class="btn-action plus" onclick="crearNuevoUsuario()">+</div>
+                        <div class="btn-action lupa" onclick="buscarUsuarios()">
+                            <i class="bi bi-search"></i>
+                        </div>
+                    </div>
+
+                    
+                    <div class="nav-item" id="navDashboard" onclick="cambiarSeccion('dashboard')">
+    <i class="bi bi-grid-1x2-fill"></i>
+    <span>dashboard</span>
+</div>
+<div class="nav-item" id="navUsuarios" onclick="cambiarSeccion('usuarios')">
+    <i class="bi bi-people-fill"></i>
+    <span>usuarios</span>
+</div>
+<div class="nav-item active" id="navPerfiles" onclick="cambiarSeccion('perfiles')">
+    <i class="bi bi-person-vcard-fill"></i>
+    <span>perfiles</span>
+</div>
+                    
+
+                    <div class="user-section">
+                        <span class="user-name" id="userDisplay">Admin</span>
+                        <div class="user-avatar">A</div>
+                    </div>
                 </div>
 
-                <div class="logo-box">
-                    <img src="{% static 'imagenes/inzur.svg' %}" alt="inzurAi+">
+                <div class="main-content">
+                    <div class="page-header">
+                        <h1 id="pageTitle">Administración de Perfiles</h1>
+                        <div class="filter-text" id="filterIndicator">      
+                        </div>
+
+                        <div class="total-objects" id="totalObjects">Total: 7 personas</div>
+                    </div>
+                    <!-- Tabla con botones -->
+                    <div class="table-container" id="tableContainer">
+                        <div class="table-actions-header">
+                            <i class="bi bi-plus-lg action-icon" onclick="crearNuevoUsuario()" title="Agregar"></i>
+                            <i class="bi bi-arrow-clockwise action-icon" onclick="aplicarFiltros()" title="Refrescar"></i>
+                            <i class="bi bi-three-dots-vertical action-icon" title="Más opciones"></i>
+                        </div>
+
+                        <table class="crud-table" id="personasTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Perfil</th>
+                                    <th>Descripcion</th>
+                                    <th>Creacion</th>
+                                    <th>Estatus</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+
+                        <div class="pagination-container">
+                            <div class="pagination-buttons">
+                                <button class="btn-pagination" onclick="paginaAnterior()" id="btnPrev" disabled>Anterior</button>
+                                <button class="btn-pagination" onclick="paginaSiguiente()" id="btnNext">Siguiente</button>
+                            </div>
+                            <div class="per-page">
+                                <span id="pageInfo">Página 1 de 2</span>
+                                <span class="items-total" id="totalItems">7 items</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-                <header class="header">
-                    <div class="header-actions" id="edit-trigger">
-                        <span class="edit-icon"> ✎ </span>  ↻   ⚲   ⋮
-                    </div>
-                </header>
-
-                <nav class="tabs-nav">
-                    <div class="tab">Propiedades</div>
-                </nav>
-
-                <main class="content-grid" id="main-container">
-                    <div class="col">
-                        <section>
-                            <h2>Información del Usuario</h2>
-                            <div class="row">
-                                <div class="label">Nombre</div>
-                                <div class="value"><input type="text" id="u-nombre" value="Juan" readonly></div>
-                            </div>
-                            <div class="row">
-                                <div class="label">Apellido</div>
-                                <div class="value"><input type="text" id="u-apellido" value="Pérez" readonly></div>
-                            </div>
-                            <div class="row">
-                                <div class="label">Email</div>
-                                <div class="value"><input type="text" id="u-email" value="j.perez@corretaje.com" readonly></div>
-                            </div>
-                            <div class="row">
-                                <div class="label">Organización</div>
-                                <div class="value">
-                                    <select id="u-org" disabled>
-                                        <option value="Combodo Corretaje" selected>Combodo Corretaje</option>
-                                        <option value="IT Department">IT Department</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="label">Estado</div>
-                                <div class="value">
-                                    <select id="u-estado" disabled>
-                                        <option value="activo" selected>Activo</option>
-                                        <option value="inactivo">Inactivo</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </section>
-                    </div>
-
-                    <div class="col">
-                        <section>
-                            <h2>Parámetros JSON de Salida</h2>
-                            <textarea class="json-area" id="json-preview" readonly>
-{
-  "operacion": "usuario/crear",
-  "datos": {
-    "nombre": "Juan",
-    "apellido": "Pérez",
-    "email": "j.perez@corretaje.com",
-    "organizacion": "Combodo Corretaje",
-    "estado": "activo"
-  }
-}</textarea>
-                        </section>
-                    </div>
-                </main>
             </div>
-            
-            <button class="btn-guardar-flotante" id="btn-save">GUARDAR CAMBIOS</button>
         </main>
     </div>
-
+    <!-- SCRIPTS -->
     <script>
-        const editIcon = document.getElementById('edit-trigger');
-        const saveBtn = document.getElementById('btn-save');
-        const container = document.getElementById('main-container');
-        const inputs = document.querySelectorAll('input, select, textarea');
+        // DATOS
+        let personas = [
+            { id: 1, nombre: '1', apellido: 'Administrador', organizacion: 'Administrador', estado: 'ACTIVO', email: '09/10/2026' },
+        ];
 
-        editIcon.addEventListener('click', () => {
-            container.classList.add('editing');
-            inputs.forEach(el => {
-                el.removeAttribute('readonly');
-                el.removeAttribute('disabled');
-            });
-            saveBtn.style.display = 'block';
-        });
+        let personasFiltradas = [...personas];
+        let personaEditandoId = null;
+        let paginaActual = 1;
+        const itemsPorPagina = 5;
 
-        saveBtn.addEventListener('click', () => {
-            container.classList.remove('editing');
-            inputs.forEach(el => {
-                el.setAttribute('readonly', true);
-                el.setAttribute('disabled', true);
+        // Elementos DOM
+        const dashboardMain = document.getElementById('dashboardMain');
+        const modal = document.getElementById('modalPersona');
+        const tableBody = document.getElementById('tableBody');
+        const totalObjects = document.getElementById('totalObjects');
+        const userDisplay = document.getElementById('userDisplay');
+        const pageTitle = document.getElementById('pageTitle');
+        const filterIndicator = document.getElementById('filterIndicator');
+        const searchSection = document.getElementById('searchSection');
+        const tableContainer = document.getElementById('tableContainer');
+        const btnPrev = document.getElementById('btnPrev');
+        const btnNext = document.getElementById('btnNext');
+        const pageInfo = document.getElementById('pageInfo');
+        const totalItems = document.getElementById('totalItems');
+        const filterPerson = document.getElementById('filterPerson');
+        const filterEmail = document.getElementById('filterEmail');
+
+        const navDashboard = document.getElementById('navDashboard');
+        const navPersonas = document.getElementById('navPersonas'); 
+        const navPerfiles = document.getElementById('navPerfiles');
+        const navUsuarios = document.getElementById('navUsuarios'); 
+
+        // FUNCIONES DEL DASHBOARD
+        function cambiarSeccion(seccion) {
+    // Limpiamos la clase active de todos los botones
+    [navDashboard, navPerfiles, navUsuarios].forEach(nav => {
+        if(nav) nav.classList.remove('active');
+    });
+
+    // Reset de visibilidad de filtros
+    if(filterIndicator) filterIndicator.style.display = 'none';
+    if(searchSection) searchSection.style.display = 'none';
+    tableContainer.style.display = 'block';
+
+    if (seccion === 'dashboard') {
+        navDashboard.classList.add('active');
+        pageTitle.textContent = 'Panel de Control';
+        if(filterIndicator) filterIndicator.style.display = 'flex';
+        if(searchSection) searchSection.style.display = 'block';
+    } 
+    else if (seccion === 'perfiles') {
+        navPerfiles.classList.add('active');
+        pageTitle.textContent = 'Administración de Perfiles';
+        renderizarTabla(); 
+    } 
+    else if (seccion === 'usuarios') {
+        navUsuarios.classList.add('active');
+        pageTitle.textContent = 'Gestión de Usuarios';
+        renderizarTabla(); 
+    }
+}
+        function toggleFilters() {
+            const container = document.getElementById('filtersContainer');
+            const arrow = document.getElementById('searchArrow');
+            container.classList.toggle('collapsed');
+            arrow.classList.toggle('rotated');
+        }
+
+        function crearNuevoUsuario() {
+            personaEditandoId = null;
+            document.getElementById('modalTitle').textContent = 'Create Molkobain Ticket';
+            document.getElementById('displayNombre').textContent = 'Create Molkobain Ticket';
+
+            document.getElementById('editNombre').value = '';
+            document.getElementById('editApellido').value = '';
+            document.getElementById('editEmail').value = '';
+            document.getElementById('editOrganizacion').value = 'Démó';
+            document.getElementById('editEstado').value = 'CREADO';
+
+            modal.classList.add('show');
+        }
+
+        function buscarUsuarios() {
+            cambiarSeccion('dashboard');
+            const container = document.getElementById('filtersContainer');
+            const arrow = document.getElementById('searchArrow');
+            if (container.classList.contains('collapsed')) {
+                container.classList.remove('collapsed');
+                arrow.classList.remove('rotated');
+            }
+            setTimeout(() => filterPerson.focus(), 100);
+        }
+
+        function cambiarEstado(id, nuevoEstado) {
+            const persona = personas.find(p => p.id === id);
+            if (persona) {
+                persona.estado = nuevoEstado;
+                aplicarFiltros();
+            }
+        }
+
+        function renderizarTabla() {
+            const inicio = (paginaActual - 1) * itemsPorPagina;
+            const fin = inicio + itemsPorPagina;
+            const personasPaginadas = personasFiltradas.slice(inicio, fin);
+
+            tableBody.innerHTML = '';
+
+            personasPaginadas.forEach(persona => {
+                const estadoClass = persona.estado === 'CREADO' ? 'creado' :
+                                   persona.estado === 'ACTIVO' ? 'activo' : 'inactivo';
+
+                const row = document.createElement('tr');
+                row.onclick = () => editarPersona(persona.id);
+                row.innerHTML = `
+                    <td>
+                        <span class="person-name" style="cursor: pointer; color: #0d6efd; text-decoration: underline;" onclick="abrirCrearPerfil(event, ${persona.id})" title="Ir a crear perfil">
+                            ${persona.nombre} ${persona.apellido}
+                        </span>
+                    </td>
+                    <td>${persona.apellido}</td>
+                    <td><span class="organization-name">${persona.organizacion}</span></td>
+                    <td><span class="email-address">${persona.email}</span></td>
+                    <td>
+                        <div class="status-container">
+                            <span class="status-dot ${estadoClass}"></span>
+                            <select class="status-select-clean ${estadoClass}" onchange="cambiarEstado(${persona.id}, this.value)" onclick="event.stopPropagation()">
+                                <option value="CREADO" ${persona.estado === 'CREADO' ? 'selected' : ''}>CREADO</option>
+                                <option value="ACTIVO" ${persona.estado === 'ACTIVO' ? 'selected' : ''}>ACTIVO</option>
+                                <option value="INACTIVO" ${persona.estado === 'INACTIVO' ? 'selected' : ''}>INACTIVO</option>
+                            </select>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
             });
-            saveBtn.style.display = 'none';
-        });
+
+            totalObjects.textContent = `Total: ${personasFiltradas.length} personas`;
+            totalItems.textContent = `${personasFiltradas.length} items`;
+
+            const totalPaginas = Math.ceil(personasFiltradas.length / itemsPorPagina);
+            pageInfo.textContent = `Página ${paginaActual} de ${totalPaginas || 1}`;
+
+            btnPrev.disabled = paginaActual === 1;
+            btnNext.disabled = paginaActual === totalPaginas || totalPaginas === 0;
+        }
+
+        function aplicarFiltros() {
+            const filterPerson = document.getElementById('filterPerson').value.toLowerCase();
+            const filterEmail = document.getElementById('filterEmail').value.toLowerCase();
+            const filterOrg = document.getElementById('filterOrganization').value;
+
+            personasFiltradas = personas.filter(persona => {
+                const nombreCompleto = `${persona.nombre} ${persona.apellido}`.toLowerCase();
+                const cumplePersona = !filterPerson || nombreCompleto.includes(filterPerson);
+                const cumpleEmail = !filterEmail || persona.email.toLowerCase().includes(filterEmail);
+                const cumpleOrg = !filterOrg || persona.organizacion === filterOrg;
+
+                return cumplePersona && cumpleEmail && cumpleOrg;
+            });
+
+            paginaActual = 1;
+            renderizarTabla();
+        }
+
+        function paginaAnterior() {
+            if (paginaActual > 1) {
+                paginaActual--;
+                renderizarTabla();
+            }
+        }
+
+        function paginaSiguiente() {
+            const totalPaginas = Math.ceil(personasFiltradas.length / itemsPorPagina);
+            if (paginaActual < totalPaginas) {
+                paginaActual++;
+                renderizarTabla();
+            }
+        }
+
+        function editarPersona(id) {
+            const persona = personas.find(p => p.id === id);
+            if (persona) {
+                personaEditandoId = id;
+                document.getElementById('modalTitle').textContent = 'Edit Molkobain Ticket';
+                document.getElementById('displayNombre').textContent = `Edit: ${persona.nombre} ${persona.apellido}`;
+
+                document.getElementById('editNombre').value = persona.nombre;
+                document.getElementById('editApellido').value = persona.apellido;
+                document.getElementById('editEmail').value = persona.email;
+                document.getElementById('editOrganizacion').value = persona.organizacion;
+                document.getElementById('editEstado').value = persona.estado;
+
+                modal.classList.add('show');
+            }
+        }
+
+        function guardarPersona() {
+            const nombre = document.getElementById('editNombre').value.trim();
+            const apellido = document.getElementById('editApellido').value.trim();
+            const email = document.getElementById('editEmail').value.trim();
+            const organizacion = document.getElementById('editOrganizacion').value;
+            const estado = document.getElementById('editEstado').value;
+
+            if (!nombre || !apellido || !email) {
+                alert('Por favor complete los campos obligatorios');
+                return;
+            }
+
+            if (personaEditandoId) {
+                const index = personas.findIndex(p => p.id === personaEditandoId);
+                if (index !== -1) {
+                    personas[index] = {
+                        ...personas[index],
+                        nombre,
+                        apellido,
+                        email,
+                        organizacion,
+                        estado
+                    };
+                }
+            } else {
+                const nuevoId = personas.length + 1;
+                personas.push({
+                    id: nuevoId,
+                    nombre,
+                    apellido,
+                    organizacion,
+                    estado,
+                    email
+                });
+            }
+
+            aplicarFiltros();
+            cerrarModal();
+        }
+
+        function cerrarModal() {
+            modal.classList.remove('show');
+            personaEditandoId = null;
+        }
+        
+        function abrirCrearPerfil(event, id) {
+            // event.stopPropagation() evita que el clic en el nombre active el clic de toda la fila (que abre el modal de edición)
+            event.stopPropagation(); 
+            
+            // Aquí defines la URL a la que quieres ir. Puedes ajustarla según tus rutas definidas en urls.py
+            const urlPestana = `/crear-perfil-usuario/?id=${id}`;
+            
+            // window.open con '_blank' fuerza a que se abra obligatoriamente en una pestaña nueva
+            window.open(urlPestana, '_blank');
+        }
+        // Inicialización
+        renderizarTabla();
+
         // SIDEBAR SCRIPTS
         document.addEventListener('DOMContentLoaded', function() {
             // Accordion
@@ -376,8 +611,33 @@
         window.paginaSiguiente = paginaSiguiente;
         window.cambiarEstado = cambiarEstado;
         window.cambiarSeccion = cambiarSeccion;
+        window.abrirCrearPerfil = abrirCrearPerfil;
     </script>
 
+    <!-- Chatwoot Script -->
+    <script>
+        window.chatwootSettings = {
+            hideMessageBubble: false,
+            position: 'right',
+            locale: 'es',
+            type: 'expanded_bubble',
+            launcherTitle: '¿En qué puedo ayudarte?',
+        };
+
+        (function(d,t) {
+            var BASE_URL="https://n8n-envronment-chatwoot.25h6nh.easypanel.host";
+            var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+            g.src=BASE_URL+"/packs/js/sdk.js";
+            g.async = true;
+            s.parentNode.insertBefore(g,s);
+            g.onload=function(){
+                window.chatwootSDK.run({
+                    websiteToken: 'nhjJeABGFo54A86J3EfgoN8b',
+                    baseUrl: BASE_URL
+                    
+                });
+            }
+        })(document,"script");
     </script>
 </body>
 </html>
